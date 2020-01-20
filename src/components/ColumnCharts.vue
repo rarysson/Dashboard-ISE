@@ -1,0 +1,30 @@
+<template>
+  <div :id="'chart' + idChart"></div>
+</template>
+
+<script>
+export default {
+  beforeMount() {
+		window.google.charts.setOnLoadCallback(this.drawChart)
+  },
+  props: [
+    'idChart', 'chartData'
+  ],
+	methods: {
+		drawChart() {
+      let data = new window.google.visualization.DataTable();
+      data.addColumn('string', 'Ano')
+      data.addColumn('number', 'Nota IDEB');
+
+      data.addRows(this.chartData);
+
+      let chart = new window.google.visualization.ColumnChart(document.getElementById('chart' + this.idChart));
+      let options = {
+        title: "Histórico de notas do IDEB"
+      }
+
+      chart.draw(data, options);
+    }
+	}
+}
+</script>
