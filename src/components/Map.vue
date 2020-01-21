@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<p>Brasil</p>
+		<p>{{ currentLocation }}</p>
 		<hr>
 		<div 
 			id="map"
@@ -26,8 +26,9 @@
 </template>
 
 <script>
-import axios from 'axios'
 import {api} from '../api'
+import country from '../country'
+import state from '../state'
 
 import columnCharts from './ColumnCharts'
 
@@ -38,16 +39,22 @@ export default {
 	},
 	async mounted() {
 		try {
-			const resStates = await axios.get("https://raw.githubusercontent.com/felipefdl/cidades-estados-brasil-json/master/Estados.json")
-			const resCountry = await api.get("brasil")
-			
-			resStates.data.forEach(state => {
-				this.geoData.push([state.Nome])
+			const dataIDEB = await api.get("brasil")
+			this.dataCountry = await country()
+
+			this.dataCountry.data.forEach(state => {
+				this.geoData.push([state.nome])
 			});
 
-			this.filterDataF1(resCountry.data[0])
-			this.filterDataF2(resCountry.data[0])
-			this.filterDataEM(resCountry.data[0])
+			this.currentLocation = this.dataCountry.name
+			this.geoOptions.mapsOptions.center.lat = this.dataCountry.lat
+			this.geoOptions.mapsOptions.center.lng = this.dataCountry.lng
+			this.geoOptions.geoJson = this.dataCountry.url
+			this.geoOptions.geoJsonOptions.idPropertyName = this.dataCountry.property_name
+
+			this.filterDataF1(dataIDEB.data[0])
+			this.filterDataF2(dataIDEB.data[0])
+			this.filterDataEM(dataIDEB.data[0])
 			this.drawVisualization()
 		} catch (e) {
 			console.log(e)
@@ -57,20 +64,46 @@ export default {
 		return {
 			geochart: null,
 			geoData: [],
-			dataF1: [],
-			dataF2: [],
-			dataEM: []
+			dataF1: [], //Ensino Fundamental 1
+			dataF2: [], //Ensino Fundamental 2
+			dataEM: [], //Ensino Médio
+			dataCountry: null,
+			currentLocation: "",
+			geoOptions: {
+				mapsOptions: {
+					center: {
+						lat: 0, 
+						lng: 0
+					},
+					zoom: 4
+				},
+				geoJson: "",
+				geoJsonOptions: {
+					idPropertyName: "name"
+				}
+			}
 		}
 	},
 	components: {
 		'column-charts': columnCharts
 	},
 	methods: {
-		selectArea() {
+		async selectArea() {
 			let area = this.geochart.getSelection()[0]
 
 			if (area !== undefined) {
-				console.log(this.geoData[area.row])
+				let stateName = this.geoData[area.row][0]
+				let data = await state(this.dataCountry.data.find(el => el.nome == stateName))
+
+				this.currentLocation = data.name
+				this.geoOptions.mapsOptions.center.lat = data.lat
+				this.geoOptions.mapsOptions.center.lng = data.lng
+				this.geoOptions.geoJson = data.url
+				this.geoOptions.geoJsonOptions.idPropertyName = data.property_name
+				this.geoOptions.mapsOptions.zoom = data.zoom
+				this.geoData = data.data
+
+				this.drawVisualization()
 			}
 		},
 		drawVisualization() {
@@ -80,18 +113,7 @@ export default {
 
 			this.geochart = new window.geochart_geojson.GeoChart(document.getElementById("map"))
 
-			let options = {
-				mapsOptions: {
-					center: {lat: -14, lng: -52},
-					zoom: 4
-				},
-				geoJson: "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson",
-				geoJsonOptions: {
-					idPropertyName: "name"
-				}
-			}
-
-			this.geochart.draw(data, options)
+			this.geochart.draw(data, this.geoOptions)
 		},
 		filterDataF1(states) {
 			for(let cod in states) {
