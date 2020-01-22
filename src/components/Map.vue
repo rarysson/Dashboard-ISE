@@ -23,17 +23,27 @@
 		<v-tabs centered>
 			<v-tab>Ensino Fundamental 1</v-tab>
 			<v-tab-item>
-				<column-charts id-chart="1" :chart-data="dataF1" ref="dataF1"/>
+				<column-charts 
+					id-chart="1" 
+					:chart-data="dataF1"
+					:location-name="currentLocationName"
+					ref="dataF1"/>
 			</v-tab-item>
 
 			<v-tab>Ensino Fundamental 2</v-tab>
 			<v-tab-item>
-				<column-charts id-chart="2" :chart-data="dataF2"/>
+				<column-charts 
+					id-chart="2" 
+					:chart-data="dataF2"
+					:location-name="currentLocationName"/>
 			</v-tab-item>
 
 			<v-tab>Ensino Médio</v-tab>
 			<v-tab-item>
-				<column-charts id-chart="3" :chart-data="dataEM"/>
+				<column-charts 
+					id-chart="3" 
+					:chart-data="dataEM"
+					:location-name="currentLocationName"/>
 			</v-tab-item>
 		</v-tabs>
 	</div>
@@ -52,8 +62,9 @@ export default {
 	},
 	async mounted() {
 		try {
-			const dataIDEB = await api.get("brasil")
+			const resIDEB = await api.get("brasil")
 			const dataCountry = await getCountry()
+			const dataIDEB = resIDEB.data[0]
 			this.states = dataCountry.data
 			dataCountry.data = []
 
@@ -62,11 +73,11 @@ export default {
 			});
 
 			this.changeMapOptions(dataCountry)
-			this.locations.push(dataCountry)
+			this.locations.push({data: dataCountry, dataIDEB})
 			
-			this.filterDataF1(dataIDEB.data[0])
-			this.filterDataF2(dataIDEB.data[0])
-			this.filterDataEM(dataIDEB.data[0])
+			this.filterDataF1(dataIDEB)
+			this.filterDataF2(dataIDEB)
+			this.filterDataEM(dataIDEB)
 			this.drawVisualization()
 		} catch (e) {
 			console.log(e)
@@ -109,20 +120,24 @@ export default {
 				if (this.currentIndex === 0) { //Indo para estado
 					let stateName = this.geoData[area.row][0]
 					let data = await getState(this.states.find(el => el.nome == stateName))
-					const dataIDEB = await api.get(`regiao/${stateName}`)
-					
+					const resIDEB = await api.get(`regiao/${stateName}`)
+					const dataIDEB = resIDEB.data[0]
+
 					this.changeMapOptions(data)
-					this.dataF1 = []
-					this.dataF2 = []
-					this.dataEM = []
-					this.filterDataF1(dataIDEB.data[0])
-					this.filterDataF2(dataIDEB.data[0])
-					this.filterDataEM(dataIDEB.data[0])
+					this.changeDataIDEB(dataIDEB)
 					this.drawVisualization()
-					this.locations.push(data)
+					this.locations.push({data, dataIDEB})
 					this.currentIndex++
 				}
 			}
+		},
+		changeDataIDEB(dataIDEB) {
+			this.dataF1 = []
+			this.dataF2 = []
+			this.dataEM = []
+			this.filterDataF1(dataIDEB)
+			this.filterDataF2(dataIDEB)
+			this.filterDataEM(dataIDEB)
 		},
 		changeMapOptions(data) {
 			this.currentLocationName = data.name
@@ -151,8 +166,6 @@ export default {
 					this.dataF1.push([year, grade])
 				}
 			}
-
-			this.$refs.dataF1.drawChart()
 		},
 		filterDataF2(locations) {
 			for(let cod in locations) {
@@ -181,7 +194,9 @@ export default {
 
 			this.locations.pop()
 			this.currentIndex--
-			this.changeMapOptions(this.locations[this.currentIndex])
+			this.changeMapOptions(this.locations[this.currentIndex].data)
+			this.changeDataIDEB(this.locations[this.currentIndex].dataIDEB)
+			console.log(JSON.stringify(this.locations[this.currentIndex].dataIDEB))
 			this.drawVisualization()
 		}
 	}

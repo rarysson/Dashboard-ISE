@@ -8,8 +8,13 @@ export default {
 		window.google.charts.setOnLoadCallback(this.drawChart)
   },
   props: [
-    'idChart', 'chartData'
+    'idChart', 'chartData', 'locationName'
   ],
+  watch: {
+    chartData() {
+      this.drawChart()
+    }
+  },
 	methods: {
 		drawChart() {
       let data = new window.google.visualization.DataTable();
@@ -20,7 +25,7 @@ export default {
 
       let chart = new window.google.visualization.ColumnChart(document.getElementById('chart' + this.idChart));
       let options = {
-        title: "Histórico de notas do IDEB"
+        title: `Histórico de notas do IDEB - ${this.locationName}`
       }
 
       chart.draw(data, options);
