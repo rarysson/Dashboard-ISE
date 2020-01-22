@@ -6,7 +6,7 @@
 			<v-row>
 				<v-col align-self="center" class="col-btn">
 					<v-btn 
-					@click="back" 
+					@click="goBack" 
 					title="Voltar para localização anterior">
 						Voltar
 					</v-btn>
@@ -41,20 +41,19 @@
 
 <script>
 import {api} from '../api'
-import country from '../country'
-import state from '../state'
+import getCountry from '../country'
+import getState from '../state'
 
 import columnCharts from './ColumnCharts'
 
 export default {
 	beforeMount() {
 		window.google.charts.load("current", {packages: ['corechart', 'bar']})
-		window.google.charts.setOnLoadCallback(this.drawVisualization)
 	},
 	async mounted() {
 		try {
 			const dataIDEB = await api.get("brasil")
-			const dataCountry = await country()
+			const dataCountry = await getCountry()
 			this.states = dataCountry.data
 			dataCountry.data = []
 
@@ -62,13 +61,7 @@ export default {
 				dataCountry.data.push([state.nome])
 			});
 
-			this.currentLocationName = dataCountry.name
-			this.geoOptions.mapsOptions.center.lat = dataCountry.lat
-			this.geoOptions.mapsOptions.center.lng = dataCountry.lng
-			this.geoOptions.geoJson = dataCountry.url
-			this.geoOptions.geoJsonOptions.idPropertyName = dataCountry.property_name
-			this.geoData = dataCountry.data
-
+			this.changeMapOptions(dataCountry)
 			this.locations.push(dataCountry)
 			
 			this.filterDataF1(dataIDEB.data[0])
@@ -115,7 +108,7 @@ export default {
 			if (area !== undefined) {
 				if (this.currentIndex === 0) { //Indo para estado
 					let stateName = this.geoData[area.row][0]
-					let data = await state(this.states.find(el => el.nome == stateName))
+					let data = await getState(this.states.find(el => el.nome == stateName))
 					const dataIDEB = await api.get(`regiao/${stateName}`)
 					
 					this.changeMapOptions(data)
@@ -149,11 +142,11 @@ export default {
 
 			this.geochart.draw(data, this.geoOptions)
 		},
-		filterDataF1(states) {
-			for(let cod in states) {
+		filterDataF1(locations) {
+			for(let cod in locations) {
 				if (cod[cod.length - 1] == 1) {
 					let year = cod.slice(4, 8)
-					let grade = states[cod]
+					let grade = locations[cod]
 					
 					this.dataF1.push([year, grade])
 				}
@@ -161,27 +154,27 @@ export default {
 
 			this.$refs.dataF1.drawChart()
 		},
-		filterDataF2(states) {
-			for(let cod in states) {
+		filterDataF2(locations) {
+			for(let cod in locations) {
 				if (cod[cod.length - 1] == 2) {
 					let year = cod.slice(4, 8)
-					let grade = states[cod]
+					let grade = locations[cod]
 					
 					this.dataF2.push([year, grade])
 				}
 			}
 		},
-		filterDataEM(states) {
-			for(let cod in states) {
+		filterDataEM(locations) {
+			for(let cod in locations) {
 				if (cod[cod.length - 1] == 'M') {
 					let year = cod.slice(4, 8)
-					let grade = states[cod]
+					let grade = locations[cod]
 					
 					this.dataEM.push([year, grade])
 				}
 			}
 		},
-		back() {
+		goBack() {
 			if (this.currentIndex === 0) {
 				return;
 			}

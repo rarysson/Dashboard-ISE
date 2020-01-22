@@ -15,6 +15,7 @@ export default async () => {
 		url: "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson",
 		lat: -14,
 		lng: -52,
+		zoom: 4,
 		data: res.data
 	}
 }
