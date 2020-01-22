@@ -1,11 +1,25 @@
 <template>
 	<div>
-		<p>{{ currentLocation }}</p>
+		<p>{{ currentLocationName }}</p>
 		<hr>
-		<div 
-			id="map"
-			@click="selectArea">
-		</div>
+		<v-container>
+			<v-row>
+				<v-col align-self="center" class="col-btn">
+					<v-btn 
+					@click="back" 
+					title="Voltar para localização anterior">
+						Voltar
+					</v-btn>
+				</v-col>
+				<v-col cols="8">
+					<div
+						id="map"
+						@click="selectArea">
+					</div>
+				</v-col>
+				<v-col></v-col>
+			</v-row>
+		</v-container>
 		<v-tabs centered>
 			<v-tab>Ensino Fundamental 1</v-tab>
 			<v-tab-item>
@@ -40,18 +54,23 @@ export default {
 	async mounted() {
 		try {
 			const dataIDEB = await api.get("brasil")
-			this.dataCountry = await country()
+			const dataCountry = await country()
+			this.states = dataCountry.data
+			dataCountry.data = []
 
-			this.dataCountry.data.forEach(state => {
-				this.geoData.push([state.nome])
+			this.states.forEach(state => {
+				dataCountry.data.push([state.nome])
 			});
 
-			this.currentLocation = this.dataCountry.name
-			this.geoOptions.mapsOptions.center.lat = this.dataCountry.lat
-			this.geoOptions.mapsOptions.center.lng = this.dataCountry.lng
-			this.geoOptions.geoJson = this.dataCountry.url
-			this.geoOptions.geoJsonOptions.idPropertyName = this.dataCountry.property_name
+			this.currentLocationName = dataCountry.name
+			this.geoOptions.mapsOptions.center.lat = dataCountry.lat
+			this.geoOptions.mapsOptions.center.lng = dataCountry.lng
+			this.geoOptions.geoJson = dataCountry.url
+			this.geoOptions.geoJsonOptions.idPropertyName = dataCountry.property_name
+			this.geoData = dataCountry.data
 
+			this.locations.push(dataCountry)
+			
 			this.filterDataF1(dataIDEB.data[0])
 			this.filterDataF2(dataIDEB.data[0])
 			this.filterDataEM(dataIDEB.data[0])
@@ -67,8 +86,10 @@ export default {
 			dataF1: [], //Ensino Fundamental 1
 			dataF2: [], //Ensino Fundamental 2
 			dataEM: [], //Ensino Médio
-			dataCountry: null,
-			currentLocation: "",
+			states: null,
+			locations: [],
+			currentIndex: 0,
+			currentLocationName: "",
 			geoOptions: {
 				mapsOptions: {
 					center: {
@@ -92,25 +113,38 @@ export default {
 			let area = this.geochart.getSelection()[0]
 
 			if (area !== undefined) {
-				let stateName = this.geoData[area.row][0]
-				let data = await state(this.dataCountry.data.find(el => el.nome == stateName))
-
-				this.currentLocation = data.name
-				this.geoOptions.mapsOptions.center.lat = data.lat
-				this.geoOptions.mapsOptions.center.lng = data.lng
-				this.geoOptions.geoJson = data.url
-				this.geoOptions.geoJsonOptions.idPropertyName = data.property_name
-				this.geoOptions.mapsOptions.zoom = data.zoom
-				this.geoData = data.data
-
-				this.drawVisualization()
+				if (this.currentIndex === 0) { //Indo para estado
+					let stateName = this.geoData[area.row][0]
+					let data = await state(this.states.find(el => el.nome == stateName))
+					const dataIDEB = await api.get(`regiao/${stateName}`)
+					
+					this.changeMapOptions(data)
+					this.dataF1 = []
+					this.dataF2 = []
+					this.dataEM = []
+					this.filterDataF1(dataIDEB.data[0])
+					this.filterDataF2(dataIDEB.data[0])
+					this.filterDataEM(dataIDEB.data[0])
+					this.drawVisualization()
+					this.locations.push(data)
+					this.currentIndex++
+				}
 			}
+		},
+		changeMapOptions(data) {
+			this.currentLocationName = data.name
+			this.geoOptions.mapsOptions.center.lat = data.lat
+			this.geoOptions.mapsOptions.center.lng = data.lng
+			this.geoOptions.geoJson = data.url
+			this.geoOptions.geoJsonOptions.idPropertyName = data.property_name
+			this.geoOptions.mapsOptions.zoom = data.zoom
+			this.geoData = data.data
 		},
 		drawVisualization() {
 			let data = new window.google.visualization.DataTable()
-			data.addColumn("string", "Estado")
+			data.addColumn("string", "Local")
 			data.addRows(this.geoData)
-
+			
 			this.geochart = new window.geochart_geojson.GeoChart(document.getElementById("map"))
 
 			this.geochart.draw(data, this.geoOptions)
@@ -146,6 +180,16 @@ export default {
 					this.dataEM.push([year, grade])
 				}
 			}
+		},
+		back() {
+			if (this.currentIndex === 0) {
+				return;
+			}
+
+			this.locations.pop()
+			this.currentIndex--
+			this.changeMapOptions(this.locations[this.currentIndex])
+			this.drawVisualization()
 		}
 	}
 }
@@ -157,11 +201,14 @@ p {
 	text-align: center;
 }
 
+.col-btn {
+	text-align: right;
+}
+
 #map {
-	width: 65%;
 	height: 80vh;
 	min-height: 500px;
-	margin: 50px auto;
+	margin: 0 10px;
 	border: 1px solid black;
 	border-radius: 5px;
 }
