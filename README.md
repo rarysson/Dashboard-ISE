@@ -1,24 +1,30 @@
-# ise-front
+# ISE - Informando Sobre Educação
 
-## Project setup
-```
-npm install
-```
+## Sobre o projeto
+Esse projeto tem o intuito de mostrar os dados acerca das [notas educacionais do IDEB](http://portal.inep.gov.br/web/guest/educacao-basica/ideb/resultados). Onde essas notas idicam o rendimento geral da educação.
+O projeto mostra os dados dos seguintes locais:
+* Brasil.
+* Todos estados.
+* Todas as cidades.
 
-### Compiles and hot-reloads for development
+## Ferramentas usadas
+* [Vue.js](vuejs.org/)
+* [Vuetify](https://vuetifyjs.com/)
+* [Google Charts](https://developers.google.com/chart)
+* [Google Maps API](https://cloud.google.com/maps-platform/maps/)
+* [geochart-geojson](https://github.com/rarylson/geochart-geojson)
+* [municipal-brazilian-geodata](https://github.com/luizpedone/municipal-brazilian-geodata)
+* [Municipios-Brasileiros](https://github.com/kelvins/Municipios-Brasileiros)
+
+## Rodando a aplicação
+Para usar online, basta acessar o link do [Heroku](https://ise-front.herokuapp.com/).
+
+Para usar localmente, basta clonar o projeto e executar os comandos
 ```
+npm run install
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Participantes
+* [Front-end](https://github.com/rarysson/ise-front) desenvolvido por [Rarysson](https://github.com/rarysson)
+* [Back-end](https://github.com/rarysson/ise-back) desenvolvido por [Camila](https://github.com/Camila-Perin)

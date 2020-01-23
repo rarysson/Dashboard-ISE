@@ -4,9 +4,6 @@
 
 <script>
 export default {
-  beforeMount() {
-		window.google.charts.setOnLoadCallback(this.drawChart)
-  },
   props: [
     'idChart', 'chartData', 'locationName'
   ],

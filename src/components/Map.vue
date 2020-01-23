@@ -53,6 +53,7 @@
 import {api} from '../api'
 import getCountry from '../country'
 import getState from '../state'
+import getCity from '../city'
 
 import columnCharts from './ColumnCharts'
 
@@ -78,7 +79,6 @@ export default {
 			this.filterDataF1(dataIDEB)
 			this.filterDataF2(dataIDEB)
 			this.filterDataEM(dataIDEB)
-			this.drawVisualization()
 		} catch (e) {
 			console.log(e)
 		}
@@ -93,6 +93,7 @@ export default {
 			states: null,
 			locations: [],
 			currentIndex: 0,
+			currentState: {},
 			currentLocationName: "",
 			geoOptions: {
 				mapsOptions: {
@@ -112,6 +113,11 @@ export default {
 	components: {
 		'column-charts': columnCharts
 	},
+	watch: {
+		geoData() {
+			this.drawVisualization()
+		}
+	},
 	methods: {
 		async selectArea() {
 			let area = this.geochart.getSelection()[0]
@@ -119,13 +125,23 @@ export default {
 			if (area !== undefined) {
 				if (this.currentIndex === 0) { //Indo para estado
 					let stateName = this.geoData[area.row][0]
-					let data = await getState(this.states.find(el => el.nome == stateName))
+					this.currentState = await getState(this.states.find(el => el.nome == stateName))
 					const resIDEB = await api.get(`regiao/${stateName}`)
 					const dataIDEB = resIDEB.data[0]
 
+					this.changeMapOptions(this.currentState)
+					this.changeDataIDEB(dataIDEB)
+					this.locations.push({data: this.currentState, dataIDEB})
+					this.currentIndex++
+				} else if (this.currentIndex === 1) { //Indo para município
+					let cityName = this.geoData[area.row][0]
+					let state = this.states.find(el => el.nome == this.currentState.name)
+					let data = await getCity(cityName, state, this.geoOptions.mapsOptions.zoom)
+					const resIDEB = await api.get(`municipio/${data.codIBGE}`)
+					const dataIDEB = resIDEB.data
+
 					this.changeMapOptions(data)
 					this.changeDataIDEB(dataIDEB)
-					this.drawVisualization()
 					this.locations.push({data, dataIDEB})
 					this.currentIndex++
 				}
@@ -196,8 +212,6 @@ export default {
 			this.currentIndex--
 			this.changeMapOptions(this.locations[this.currentIndex].data)
 			this.changeDataIDEB(this.locations[this.currentIndex].dataIDEB)
-			console.log(JSON.stringify(this.locations[this.currentIndex].dataIDEB))
-			this.drawVisualization()
 		}
 	}
 }
