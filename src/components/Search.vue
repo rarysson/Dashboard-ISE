@@ -1,25 +1,30 @@
 <template>
 	<div>
-		<label for="text-field">{{ textLabel }}</label>
-		<v-text-field
-			solo
-			dense
-			id="text-field"
-			background-color="grey lighten-4"
-			prepend-inner-icon="mdi-magnify"
-			:placeholder="textPlaceholder"
-		/>
+		<v-select 
+		outlined
+		dense
+		v-model="selected"
+		append-icon="mdi-magnify"
+		background-color="grey lighten-4"
+		no-data-text="----------"
+		:label="textLabel"
+		:items="options"
+		@change="emitChangeEvent"/> 
 	</div>
 </template>
 
 <script>
 export default {
-	props: ['textPlaceholder', 'textLabel']
+	props: ['options', 'textLabel', 'changeFunc'],
+	data() {
+		return {
+			selected: null
+		}
+	},
+	methods: {
+		emitChangeEvent() {
+			this.$emit("change-value", this.selected)
+		}
+	}
 }
 </script>
-
-<style scoped>
-label {
-	color: whitesmoke;
-}
-</style>

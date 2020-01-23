@@ -28,3 +28,23 @@ export default async (name, state, zoom) => {
 		data: [[name]]
 	}
 }
+
+export async function getCitiesName(UF) {
+	let cities = []
+
+	try {
+		const resStates = await axios.get("https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/master/json/estados.json")
+		const resCities = await axios.get("https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/master/json/municipios.json")
+
+		const state = resStates.data.find(el => el.uf == UF)
+		resCities.data.find(city => {
+			if (city.codigo_uf == state.codigo_uf) {
+				cities.push(city.nome)
+			}
+		})
+	} catch (e) {
+		console.log(e)
+	}
+
+	return cities
+}

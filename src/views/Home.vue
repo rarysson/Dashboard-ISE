@@ -1,7 +1,9 @@
 <template>
   <div>
-    <sidebar/>
-    <ise-map/>
+    <sidebar
+    @change-state="changeState"
+    @change-city="changeCity"/>
+    <ise-map ref="map"/>
   </div>
 </template>
 
@@ -14,6 +16,14 @@ export default {
   components: {
     sidebar,
     "ise-map": map
+  },
+  methods: {
+    changeState(uf) {
+      this.$refs.map.changeState(uf)
+    },
+    changeCity(city) {
+      this.$refs.map.changeCity(city)
+    }
   }
 }
 </script>

@@ -52,7 +52,7 @@
 <script>
 import {api} from '../api'
 import getCountry from '../country'
-import getState from '../state'
+import {getState, ufToName} from '../state'
 import getCity from '../city'
 
 import columnCharts from './ColumnCharts'
@@ -212,6 +212,33 @@ export default {
 			this.currentIndex--
 			this.changeMapOptions(this.locations[this.currentIndex].data)
 			this.changeDataIDEB(this.locations[this.currentIndex].dataIDEB)
+		},
+		async changeState(UF) {
+			const stateName = ufToName(UF)
+			
+			if (stateName !== undefined) {
+				if (this.currentIndex === 0) { //Primeira mudança
+					this.currentState = await getState(this.states.find(el => el.nome == stateName))
+					const resIDEB = await api.get(`regiao/${stateName}`)
+					const dataIDEB = resIDEB.data[0]
+
+					this.changeMapOptions(this.currentState)
+					this.changeDataIDEB(dataIDEB)
+					this.locations.push({data: this.currentState, dataIDEB})
+					this.currentIndex++
+				} else if (this.currentIndex == 1) { //Já escolheu outro estado
+					this.currentState = await getState(this.states.find(el => el.nome == stateName))
+					const resIDEB = await api.get(`regiao/${stateName}`)
+					const dataIDEB = resIDEB.data[0]
+
+					this.changeMapOptions(this.currentState)
+					this.changeDataIDEB(dataIDEB)
+					this.locations.push({data: this.currentState, dataIDEB})
+				}
+			}
+		},
+		changeCity(cityName) {
+			console.log(cityName)
 		}
 	}
 }

@@ -2,6 +2,7 @@
 
 ## Sobre o projeto
 Esse projeto tem o intuito de mostrar os dados acerca das [notas educacionais do IDEB](http://portal.inep.gov.br/web/guest/educacao-basica/ideb/resultados). Onde essas notas idicam o rendimento geral da educação.
+
 O projeto mostra os dados dos seguintes locais:
 * Brasil.
 * Todos estados.
@@ -21,10 +22,10 @@ Para usar online, basta acessar o link do [Heroku](https://ise-front.herokuapp.c
 
 Para usar localmente, basta clonar o projeto e executar os comandos
 ```
-npm run install
+npm install
 npm run serve
 ```
 
 ## Participantes
-* [Front-end](https://github.com/rarysson/ise-front) desenvolvido por [Rarysson](https://github.com/rarysson)
-* [Back-end](https://github.com/rarysson/ise-back) desenvolvido por [Camila](https://github.com/Camila-Perin)
+* [Rarysson](https://github.com/rarysson) [[Front-end]](https://github.com/rarysson/Dashboard-ISE)
+* [Camila](https://github.com/Camila-Perin)  [[Back-end]](https://github.com/rarysson/ise-back)

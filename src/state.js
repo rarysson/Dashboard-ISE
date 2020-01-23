@@ -60,7 +60,7 @@ const zoomState = {
 	TO: 6.3
 }
 
-export default async (state) => {
+export async function getState(state) {
 	let res
 	let cities = []
 	let lat
@@ -93,4 +93,68 @@ export default async (state) => {
 		url: `https://raw.githubusercontent.com/luizpedone/municipal-brazilian-geodata/master/data/${state.uf}.json`,
 		data: cities
 	}
+}
+
+export const statesUF = [
+	'AC',
+	'AL',
+	'AM',
+	'AP',
+	'BA',
+	'CE',
+	'DF',
+	'ES',
+	'GO',
+	'MA',
+	'MT',
+	'MS',
+	'MG',
+	'PA',
+	'PB',
+	'PR',
+	'PE',
+	'PI',
+	'RJ',
+	'RN',
+	'RO',
+	'RS',
+	'RR',
+	'SC',
+	'SE',
+	'SP',
+	'TO'
+]
+
+export function ufToName(UF) {
+	let states = {
+		AC: "Acre",
+		AL: "Alagoas",
+		AM: "Amazonas",
+		AP: "Amapá",
+		BA: "Bahia",
+		CE: "Ceará",
+		DF: "Distrito Federal",
+		ES: "Espírito Santo",
+		GO: "Goiás",
+		MA: "Maranhão",
+		MT: "Mato Grosso",
+		MS: "Mato Grosso do Sul",
+		MG: "Minas Gerais",
+		PA: "Pará",
+		PB: "Paraíba",
+		PR: "Paraná",
+		PE: "Pernanbuco",
+		PI: "Piauí",
+		RJ: "Rio de Janeiro",
+		RN: "Rio Grande do Norte",
+		RO: "Rondônia",
+		RS: "Rio Grande do Sul",
+		RR: "Roraima",
+		SC: "Santa Catarina",
+		SE: "Sergipe",
+		SP: "São Paulo",
+		TO: "Tocantins"
+	}
+
+	return states[UF]
 }
