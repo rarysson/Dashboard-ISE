@@ -11,12 +11,14 @@
 						Voltar
 					</v-btn>
 				</v-col>
+
 				<v-col cols="8">
 					<div
-						id="map"
-						@click="selectArea">
+					id="map"
+					@click="selectArea">
 					</div>
 				</v-col>
+
 				<v-col></v-col>
 			</v-row>
 		</v-container>
@@ -24,26 +26,25 @@
 			<v-tab>Ensino Fundamental 1</v-tab>
 			<v-tab-item>
 				<column-charts 
-					id-chart="1" 
-					:chart-data="dataF1"
-					:location-name="currentLocationName"
-					ref="dataF1"/>
+				id-chart="1" 
+				:chart-data="dataF1"
+				:location-name="currentLocationName"/>
 			</v-tab-item>
 
 			<v-tab>Ensino Fundamental 2</v-tab>
 			<v-tab-item>
 				<column-charts 
-					id-chart="2" 
-					:chart-data="dataF2"
-					:location-name="currentLocationName"/>
+				id-chart="2" 
+				:chart-data="dataF2"
+				:location-name="currentLocationName"/>
 			</v-tab-item>
 
 			<v-tab>Ensino Médio</v-tab>
 			<v-tab-item>
 				<column-charts 
-					id-chart="3" 
-					:chart-data="dataEM"
-					:location-name="currentLocationName"/>
+				id-chart="3" 
+				:chart-data="dataEM"
+				:location-name="currentLocationName"/>
 			</v-tab-item>
 		</v-tabs>
 	</div>
@@ -73,14 +74,9 @@ export default {
 				dataCountry.data.push([state.nome])
 			});
 
-			this.changeMapOptions(dataCountry)
-			this.locations.push({data: dataCountry, dataIDEB})
-			
-			this.filterDataF1(dataIDEB)
-			this.filterDataF2(dataIDEB)
-			this.filterDataEM(dataIDEB)
+			this.changeDashboardData(dataCountry, dataIDEB, {data: dataCountry, dataIDEB})
 		} catch (e) {
-			console.log(e)
+			this.$emit("error-server", e)
 		}
 	},
 	data() {
@@ -125,32 +121,21 @@ export default {
 			if (area !== undefined) {
 				if (this.currentIndex === 0) { //Indo para estado
 					let stateName = this.geoData[area.row][0]
-					this.currentState = await getState(this.states.find(el => el.nome == stateName))
-					const resIDEB = await api.get(`regiao/${stateName}`)
-					const dataIDEB = resIDEB.data[0]
+					const state = await this.getDataState(stateName)
+					this.currentState = state.stateData
 
-					this.changeMapOptions(this.currentState)
-					this.changeDataIDEB(dataIDEB)
-					this.locations.push({data: this.currentState, dataIDEB})
+					this.changeDashboardData(this.currentState, state.dataIDEB, {data: this.currentState, dataIDEB: state.dataIDEB})
 					this.currentIndex++
 				} else if (this.currentIndex === 1) { //Indo para município
 					let cityName = this.geoData[area.row][0]
-					let state = this.states.find(el => el.nome == this.currentState.name)
-					let data = await getCity(cityName, state, this.currentState.zoom)
-					const resIDEB = await api.get(`municipio/${data.codIBGE}`)
-					const dataIDEB = resIDEB.data
+					const city = await this.getDataCity(this.currentState.name, cityName)
 
-					this.changeMapOptions(data)
-					this.changeDataIDEB(dataIDEB)
-					this.locations.push({data, dataIDEB})
+					this.changeDashboardData(city.cityData, city.dataIDEB, {data: city.cityData, dataIDEB: city.dataIDEB})
 					this.currentIndex++
 				}
 			}
 		},
 		changeDataIDEB(dataIDEB) {
-			this.dataF1 = []
-			this.dataF2 = []
-			this.dataEM = []
 			this.filterDataF1(dataIDEB)
 			this.filterDataF2(dataIDEB)
 			this.filterDataEM(dataIDEB)
@@ -174,6 +159,8 @@ export default {
 			this.geochart.draw(data, this.geoOptions)
 		},
 		filterDataF1(locations) {
+			this.dataF1 = []
+
 			for(let cod in locations) {
 				if (cod[cod.length - 1] == 1) {
 					let year = cod.slice(4, 8)
@@ -184,6 +171,8 @@ export default {
 			}
 		},
 		filterDataF2(locations) {
+			this.dataF2 = []
+
 			for(let cod in locations) {
 				if (cod[cod.length - 1] == 2) {
 					let year = cod.slice(4, 8)
@@ -194,6 +183,8 @@ export default {
 			}
 		},
 		filterDataEM(locations) {
+			this.dataEM = []
+
 			for(let cod in locations) {
 				if (cod[cod.length - 1] == 'M') {
 					let year = cod.slice(4, 8)
@@ -213,120 +204,109 @@ export default {
 			this.changeMapOptions(this.locations[this.currentIndex].data)
 			this.changeDataIDEB(this.locations[this.currentIndex].dataIDEB)
 		},
-		async changeState(stateName) {			
-			if (stateName !== undefined) {
-				if (this.currentIndex === 0) { //Primeira mudança
-					this.currentState = await getState(this.states.find(el => el.nome == stateName))
-					const resIDEB = await api.get(`regiao/${stateName}`)
-					const dataIDEB = resIDEB.data[0]
+		changeDashboardData(mapOptions, dataIDEB, locationObject) {
+			this.changeMapOptions(mapOptions)
+			this.changeDataIDEB(dataIDEB)
+			this.locations.push(locationObject)
+		},
+		async getDataState(stateName) {
+			let stateData, dataIDEB
 
-					this.changeMapOptions(this.currentState)
-					this.changeDataIDEB(dataIDEB)
-					this.locations.push({data: this.currentState, dataIDEB})
-					this.currentIndex++
-				} else if (this.currentIndex === 1) { //Já escolheu outro estado
-					this.locations.pop()
-					this.currentState = await getState(this.states.find(el => el.nome == stateName))
-					const resIDEB = await api.get(`regiao/${stateName}`)
-					const dataIDEB = resIDEB.data[0]
+			try {
+				stateData = await getState(this.states.find(el => el.nome == stateName))
+				const resIDEB = await api.get(`regiao/${stateName}`)
+				dataIDEB = resIDEB.data[0]
+			} catch (e) {
+				this.$emit("error-server", e)
+			}			
 
-					this.changeMapOptions(this.currentState)
-					this.changeDataIDEB(dataIDEB)
-					this.locations.push({data: this.currentState, dataIDEB})
-				} else if (this.currentIndex === 2) { //Está numa cidade
-					this.locations.pop()
-					this.locations.pop()
-					this.currentIndex--
-
-					this.currentState = await getState(this.states.find(el => el.nome == stateName))
-					const resIDEB = await api.get(`regiao/${stateName}`)
-					const dataIDEB = resIDEB.data[0]
-
-					this.changeMapOptions(this.currentState)
-					this.changeDataIDEB(dataIDEB)
-					this.locations.push({data: this.currentState, dataIDEB})
-				}
+			return {
+				stateData,
+				dataIDEB
 			}
 		},
+		async getDataCity(stateName, cityName) {
+			let cityData, dataIDEB
+
+			try {
+				let stateData = this.states.find(el => el.nome == stateName)
+				cityData = await getCity(cityName, stateData, this.currentState.zoom)
+				const resIDEB = await api.get(`municipio/${cityData.codIBGE}`)
+				dataIDEB = resIDEB.data
+			} catch (e) {
+				this.$emit("error-server", e)
+			}
+
+			return {
+				cityData,
+				dataIDEB
+			}
+		},
+		async changeState(stateName) {			
+			if (this.currentIndex === 0) { //Primeira mudança				
+				this.currentIndex++
+			} else if (this.currentIndex === 1) { //Já escolheu outro estado
+				this.locations.pop()
+			} else if (this.currentIndex === 2) { //Está numa cidade
+				this.locations.splice(1, 2)
+				this.currentIndex--
+			}
+
+			const state = await this.getDataState(stateName)
+			this.currentState = state.stateData
+
+			this.changeDashboardData(this.currentState, state.dataIDEB, {data: this.currentState, dataIDEB: state.dataIDEB})
+		},
 		async changeCity(stateName, cityName) {
-			if (stateName !== undefined) {
-				if (this.currentIndex === 0) { //Primeira mudança
-					this.currentState = await getState(this.states.find(el => el.nome == stateName))
-					const resIDEBState = await api.get(`regiao/${stateName}`)
-					const dataIDEBState = resIDEBState.data[0]
+			let needToGetState = false
 
-					this.locations.push({data: this.currentState, dataIDEB: dataIDEBState})
-					this.currentIndex++
-					
-					let state = this.states.find(el => el.nome == this.currentState.name)
-					let data = await getCity(cityName, state, this.currentState.zoom)
-					const resIDEBCity = await api.get(`municipio/${data.codIBGE}`)
-					const dataIDEBCity = resIDEBCity.data
+			if (this.currentIndex === 0) { //Primeira mudança
+				needToGetState = true
+				this.currentIndex+= 2 //+2 pq vai acrescentar 2 locais
+			} else if (this.currentIndex === 1) { //Está em um estado
+				if (stateName !== this.currentState.name) {
+					this.locations.pop()
 
-					this.changeMapOptions(data)
-					this.changeDataIDEB(dataIDEBCity)
-					this.locations.push({data, dataIDEB: dataIDEBCity})
-					this.currentIndex++
-				} else if (this.currentIndex === 1) { //Está em um estado
-					if (stateName !== this.currentState.name) {
-						this.locations.pop()
-						this.currentState = await getState(this.states.find(el => el.nome == stateName))
-						const resIDEBState = await api.get(`regiao/${stateName}`)
-						const dataIDEBState = resIDEBState.data[0]
+					needToGetState = true
+				}
 
-						this.locations.push({data: this.currentState, dataIDEB: dataIDEBState})
+				this.currentIndex++
+			} else if (this.currentIndex === 2) { //Está em outra cidade
+				if (stateName !== this.currentState.name) {
+					this.locations.splice(1, 2)
 
-						let state = this.states.find(el => el.nome == stateName)
-						let data = await getCity(cityName, state, this.currentState.zoom)
-						const resIDEBCity = await api.get(`municipio/${data.codIBGE}`)
-						const dataIDEBCity = resIDEBCity.data
-
-						this.changeMapOptions(data)
-						this.changeDataIDEB(dataIDEBCity)
-						this.locations.push({data, dataIDEB: dataIDEBCity})
-						this.currentIndex++
-					} else {
-						let state = this.states.find(el => el.nome == stateName)
-						let data = await getCity(cityName, state, this.currentState.zoom)
-						const resIDEB = await api.get(`municipio/${data.codIBGE}`)
-						const dataIDEB = resIDEB.data
-
-						this.changeMapOptions(data)
-						this.changeDataIDEB(dataIDEB)
-						this.locations.push({data, dataIDEB})
-						this.currentIndex++
-					}
-				} else if (this.currentIndex === 2) { //Está em outra cidade
-					if (stateName !== this.currentState.name) {
-						this.locations.pop()
-						this.locations.pop()
-						this.currentState = await getState(this.states.find(el => el.nome == stateName))
-						const resIDEBState = await api.get(`regiao/${stateName}`)
-						const dataIDEBState = resIDEBState.data[0]
-
-						this.locations.push({data: this.currentState, dataIDEB: dataIDEBState})
-
-						let state = this.states.find(el => el.nome == stateName)
-						let data = await getCity(cityName, state, this.currentState.zoom)
-						const resIDEBCity = await api.get(`municipio/${data.codIBGE}`)
-						const dataIDEBCity = resIDEBCity.data
-
-						this.changeMapOptions(data)
-						this.changeDataIDEB(dataIDEBCity)
-						this.locations.push({data, dataIDEB: dataIDEBCity})
-					} else {
-						this.locations.pop()
-						let state = this.states.find(el => el.nome == stateName)
-						let data = await getCity(cityName, state, this.currentState.zoom)
-						const resIDEB = await api.get(`municipio/${data.codIBGE}`)
-						const dataIDEB = resIDEB.data
-
-						this.changeMapOptions(data)
-						this.changeDataIDEB(dataIDEB)
-						this.locations.push({data, dataIDEB})
-					}
+					needToGetState = true
+				} else {
+					this.locations.pop()
 				}
 			}
+
+			if (needToGetState) {
+				const state = await this.getDataState(stateName)
+				this.currentState = state.stateData
+
+				this.locations.push({data: this.currentState, dataIDEB: state.dataIDEB})
+			}
+
+			const city = await this.getDataCity(stateName, cityName)
+
+			this.changeDashboardData(city.cityData, city.dataIDEB, {data: city.cityData, dataIDEB: city.dataIDEB})
+		},
+		async changeSchool(stateName, cityName, school) {
+			console.log(stateName, cityName, school)
+			// if (this.currentIndex < 3) { //Se não estiver numa escola
+			// 	await this.changeCity(stateName, cityName)
+			// 	console.log(school)
+			// 	const resIDEB = await api.get(`escola/${school.cod}`)
+			// 	const dataIDEB = resIDEB.data
+			// 	console.log(resIDEB)
+			// 	this.currentIndex++
+			// 	this.currentLocationName = school.name
+			// 	this.changeDataIDEB(dataIDEB)
+			// 	this.locations.push({})
+			// } else {
+			// 	console.log(school)
+			// }
 		}
 	}
 }

@@ -12,6 +12,9 @@ export default {
       this.drawChart()
     }
   },
+  beforeMount() {
+    window.google.charts.setOnLoadCallback(this.drawChart);
+  },
 	methods: {
 		drawChart() {
       let data = new window.google.visualization.DataTable();

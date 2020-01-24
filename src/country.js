@@ -6,7 +6,7 @@ export default async () => {
 	try {
 		res = await axios.get("https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/master/json/estados.json")
 	} catch (e) {
-		console.log(e)
+		throw e
 	}
 
 	return {

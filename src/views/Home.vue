@@ -1,29 +1,59 @@
 <template>
   <div>
+    <error-box
+    ref="box"
+    :message="errorMsg"/>
+
     <sidebar
     @change-state="changeState"
-    @change-city="changeCity"/>
-    <ise-map ref="map"/>
+    @change-city="changeCity"
+    @change-school="changeSchool"
+    @error-server="showError"/>
+
+    <ise-map 
+    ref="map"
+    @error-server="showError"/>
   </div>
 </template>
 
 <script>
 import sidebar from '../components/Sidebar'
 import map from '../components/Map'
+import errorbox from '../components/ErrorBox'
 
 export default {
   name: 'Home',
   components: {
     sidebar,
-    "ise-map": map
+    "ise-map": map,
+    "error-box": errorbox
+  },
+  data() {
+    return {
+      errorMsg: ""
+    }
   },
   methods: {
-    changeState(state) {
-      this.$refs.map.changeState(state)
+    changeState(stateName) {
+      this.$refs.map.changeState(stateName)
     },
-    changeCity(state, city) {
-      this.$refs.map.changeCity(state, city)
+    changeCity(stateName, cityName) {
+      this.$refs.map.changeCity(stateName, cityName)
+    },
+    changeSchool(stateName, cityName, school) {
+      this.$refs.map.changeSchool(stateName, cityName, school)
+    },
+    showError(error) {
+      this.errorMsg = error
+      this.$refs.box.activeMsg()
     }
   }
 }
 </script>
+
+<style scoped>
+.alert {
+  position: fixed;
+  right: 0;
+}
+</style>

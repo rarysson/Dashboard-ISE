@@ -9,32 +9,34 @@
 			<search 
 			text-label="Pesquisar"
 			class="search"
-			:options="options"
+			:options="searchOptions"
 			@change-value="selectSearch"/>
 
 			<search 
 			text-label="Estado"
 			class="search"
 			v-if="showState"
-			:options="optionsStates"
+			:options="statesOptions"
 			@change-value="selectState"/>
 
 			<search
 			text-label="Município"
 			class="search"
 			v-if="showCity"
-			:options="optionsCities"
+			:options="citiesOptions"
 			@change-value="selectCity"/>
 
 			<search
 			text-label="Escola"
 			class="search"
-			v-if="showSchool"/>
-			<!-- :options="optionsCities"
-			@change-value="selectCity"/> -->
+			v-if="showSchool"
+			:options="schoolsOptions"
+			@change-value="selectSchool"/>
 
-			<div style="text-align: center;" v-if="searchSelected">
-				<v-btn @click="emitEvent">Pesquisar</v-btn>
+			<div style="text-align: center;" v-if="selectedSearch">
+				<v-btn @click="emitEvent">
+					Pesquisar
+				</v-btn>
 			</div>
 		</v-list>
 	</v-navigation-drawer>
@@ -42,7 +44,8 @@
 
 <script>
 import {statesUF, ufToName} from '../state'
-import {getCitiesName} from '../city'
+import {getCitiesName, getIBGECodCity} from '../city'
+import {api} from '../api'
 
 import search from './Search'
 
@@ -52,32 +55,30 @@ export default {
 	},
 	mounted() {
 		statesUF.forEach(uf => {
-			this.optionsStates.push(ufToName(uf))
+			this.statesOptions.push(ufToName(uf))
 			this.states[ufToName(uf)] = uf
 		})
 	},
 	data() {
 		return {
-			options: [
-				'Estado',
-				'Município',
-				'Escola',
-				'Melhor escola do município'
-			],
-			optionsStates: [],
-			optionsCities: [],
+			searchOptions: ['Estado', 'Município', 'Escola', 'Melhor escola do município'],
+			statesOptions: [],
+			citiesOptions: [],
+			schoolsOptions: [],
 			states: {},
-			searchSelected: false,
+			schools: {},
 			showState: false,
 			showCity: false,
 			showSchool: false,
-			stateSelected: null,
-			citySelected: null
+			selectedSearch: null,
+			selectedState: null,
+			selectedCity: null,
+			selectedSchool: null
 		}
 	},
 	methods: {
 		selectSearch(search) {
-			this.searchSelected = search
+			this.selectedSearch = search
 			this.showSchool = this.showCity = this.showSchool = false
 
 			if (search == 'Estado') {
@@ -90,24 +91,46 @@ export default {
 				this.showState = this.showCity = this.showSchool = false
 			}
 		},
-		async selectState(state) {
-			this.optionsCities = await getCitiesName(this.states[state])
-			this.stateSelected = state
+		async selectState(state) { 
+			try {
+				this.citiesOptions = await getCitiesName(this.states[state])
+				this.selectedState = state
+			} catch (e) {
+				this.$emit("error-server", e)
+			}			
 		},
-		selectCity(city) {
-			this.citySelected = city
+		async selectCity(city) {
+			this.selectedCity = city
+
+			if (this.selectedSearch == 'Escola') {
+				try {
+					const cityCod = await getIBGECodCity(this.states[this.selectedState], this.selectedCity)
+					const resSchools = await api.get(`escola/municipio/${cityCod}`)
+					this.schools = {}
+					console.log(this.schools)
+					
+					resSchools.data.forEach(school => {
+						this.schoolsOptions.push(school.NomeEscola)
+						this.schools[school.NomeEscola] = school.CodigoEscola
+					})
+				} catch (e) {
+					this.$emit("error-server", e)
+				}
+			}
+		},
+		selectSchool(school) {
+			this.selectedSchool = school
 		},
 		emitEvent() {
-			if (this.searchSelected == 'Estado') {
-				this.$emit("change-state", this.stateSelected)
-			} else if (this.searchSelected == 'Município') {
-				this.$emit("change-city", this.stateSelected, this.citySelected)
+			if (this.selectedSearch == 'Estado' && this.selectedState) {
+				this.$emit("change-state", this.selectedState)
+			} else if (this.selectedSearch == 'Município' && this.selectedCity) {
+				this.$emit("change-city", this.selectedState, this.selectedCity)
+			} else if (this.selectedSearch == 'Escola' && this.selectedSchool) {
+				this.$emit("change-school", this.selectedState, this.selectedCity, {name: this.selectedSchool, cod: this.schools[this.selectedSchool]})
+			} else {
+				this.showState = this.showCity = this.showSchool = false
 			}
-			// } else if (search == 'Escola') {
-			// 	this.showState = this.showCity = this.showSchool = true
-			// } else {
-			// 	this.showState = this.showCity = this.showSchool = false
-			// }
 		}
 	}
 }

@@ -18,9 +18,9 @@ O projeto mostra os dados dos seguintes locais:
 * [Municipios-Brasileiros](https://github.com/kelvins/Municipios-Brasileiros)
 
 ## Rodando a aplicação
-Para usar online, basta acessar o link do [Heroku](https://ise-front.herokuapp.com/).
+Para usar basta acessar o link do [Heroku](https://ise-front.herokuapp.com/).
 
-Para usar localmente, basta clonar o projeto e executar os comandos
+Para rodar localmente, basta clonar o projeto e executar os comandos
 ```
 npm install
 npm run serve

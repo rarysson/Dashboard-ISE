@@ -4,9 +4,9 @@
 		outlined
 		dense
 		v-model="selected"
-		append-icon="mdi-magnify"
 		background-color="grey lighten-4"
 		no-data-text="----------"
+		:append-icon="selectIcon()"
 		:label="textLabel"
 		:items="options"
 		@change="emitChangeEvent"/> 
@@ -24,6 +24,9 @@ export default {
 	methods: {
 		emitChangeEvent() {
 			this.$emit("change-value", this.selected)
+		},
+		selectIcon() {
+			return (this.selected) ? undefined : 'mdi-magnify'
 		}
 	}
 }

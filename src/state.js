@@ -61,13 +61,11 @@ const zoomState = {
 }
 
 export async function getState(state) {
-	let res
+	let lat, lng
 	let cities = []
-	let lat
-	let lng
 
 	try {
-		res = await axios.get(`https://raw.githubusercontent.com/luizpedone/municipal-brazilian-geodata/master/data/${state.uf}.json`)
+		const res = await axios.get(`https://raw.githubusercontent.com/luizpedone/municipal-brazilian-geodata/master/data/${state.uf}.json`)
 		
 		res.data.features.forEach(el => {
 			let city = el.properties
@@ -77,11 +75,10 @@ export async function getState(state) {
 			}
 		});
 
-		let capital = centralPoints[state.uf]
-		lat = capital[0]
-		lng = capital[1]
+		lat = centralPoints[state.uf][0]
+		lng = centralPoints[state.uf][1]
 	} catch (e) {
-		console.log(e)
+		throw e
 	}
 
 	return {
@@ -95,12 +92,8 @@ export async function getState(state) {
 	}
 }
 
-export const statesUF = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE',
-'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 
-'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
-
 export function ufToName(UF) {
-	let states = {
+	const states = {
 		AC: "Acre",
 		AL: "Alagoas",
 		AM: "Amazonas",
@@ -132,3 +125,6 @@ export function ufToName(UF) {
 
 	return states[UF]
 }
+
+export const statesUF = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 
+'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
