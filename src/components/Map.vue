@@ -55,6 +55,7 @@ import {api} from '../api'
 import getCountry from '../country'
 import {getState} from '../state'
 import getCity from '../city'
+import getSchoolIDEB from '../school'
 
 import columnCharts from './ColumnCharts'
 
@@ -244,12 +245,15 @@ export default {
 		},
 		async changeState(stateName) {			
 			if (this.currentIndex === 0) { //Primeira mudança				
-				this.currentIndex++
+				this.currentIndex++ //Vai acrescentar um lugar
 			} else if (this.currentIndex === 1) { //Já escolheu outro estado
-				this.locations.pop()
+				this.locations.pop() //Remove o estado escolhido
 			} else if (this.currentIndex === 2) { //Está numa cidade
-				this.locations.splice(1, 2)
+				this.locations.splice(1, 2) //Remove dois lugares
 				this.currentIndex--
+			} else if (this.currentIndex === 3) { //Está numa escola
+				this.locations.splice(1, 3)
+				this.currentIndex-= 2
 			}
 
 			const state = await this.getDataState(stateName)
@@ -266,7 +270,6 @@ export default {
 			} else if (this.currentIndex === 1) { //Está em um estado
 				if (stateName !== this.currentState.name) {
 					this.locations.pop()
-
 					needToGetState = true
 				}
 
@@ -274,10 +277,16 @@ export default {
 			} else if (this.currentIndex === 2) { //Está em outra cidade
 				if (stateName !== this.currentState.name) {
 					this.locations.splice(1, 2)
-
 					needToGetState = true
 				} else {
 					this.locations.pop()
+				}
+			} else if (this.currentIndex === 3) {
+				if (stateName !== this.currentState.name) {
+					this.locations.splice(1, 3)
+					needToGetState = true
+				} else {
+					this.locations.splice(2, 2)
 				}
 			}
 
@@ -293,20 +302,20 @@ export default {
 			this.changeDashboardData(city.cityData, city.dataIDEB, {data: city.cityData, dataIDEB: city.dataIDEB})
 		},
 		async changeSchool(stateName, cityName, school) {
-			console.log(stateName, cityName, school)
-			// if (this.currentIndex < 3) { //Se não estiver numa escola
-			// 	await this.changeCity(stateName, cityName)
-			// 	console.log(school)
-			// 	const resIDEB = await api.get(`escola/${school.cod}`)
-			// 	const dataIDEB = resIDEB.data
-			// 	console.log(resIDEB)
-			// 	this.currentIndex++
-			// 	this.currentLocationName = school.name
-			// 	this.changeDataIDEB(dataIDEB)
-			// 	this.locations.push({})
-			// } else {
-			// 	console.log(school)
-			// }
+			let dataIDEB
+
+			await this.changeCity(stateName, cityName)
+
+			try {
+				dataIDEB = await getSchoolIDEB(school.cod)
+			} catch (e) {
+				this.$emit("error-server", e)
+			}
+
+			this.currentLocationName = school.name
+			this.changeDataIDEB(dataIDEB)
+			this.locations.push({data: null, dataIDEB})
+			this.currentIndex++
 		}
 	}
 }

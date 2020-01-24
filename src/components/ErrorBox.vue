@@ -4,7 +4,6 @@
 		dismissible
 		type="error"
 		:value="show">
-			<strong>Erro:</strong> <br>
 			<strong>{{ message }}</strong>
 		</v-alert>
 	</div>

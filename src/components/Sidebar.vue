@@ -106,8 +106,6 @@ export default {
 				try {
 					const cityCod = await getIBGECodCity(this.states[this.selectedState], this.selectedCity)
 					const resSchools = await api.get(`escola/municipio/${cityCod}`)
-					this.schools = {}
-					console.log(this.schools)
 					
 					resSchools.data.forEach(school => {
 						this.schoolsOptions.push(school.NomeEscola)
