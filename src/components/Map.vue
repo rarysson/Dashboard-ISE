@@ -52,7 +52,7 @@
 <script>
 import {api} from '../api'
 import getCountry from '../country'
-import {getState, ufToName} from '../state'
+import {getState} from '../state'
 import getCity from '../city'
 
 import columnCharts from './ColumnCharts'
@@ -136,7 +136,7 @@ export default {
 				} else if (this.currentIndex === 1) { //Indo para município
 					let cityName = this.geoData[area.row][0]
 					let state = this.states.find(el => el.nome == this.currentState.name)
-					let data = await getCity(cityName, state, this.geoOptions.mapsOptions.zoom)
+					let data = await getCity(cityName, state, this.currentState.zoom)
 					const resIDEB = await api.get(`municipio/${data.codIBGE}`)
 					const dataIDEB = resIDEB.data
 
@@ -213,9 +213,7 @@ export default {
 			this.changeMapOptions(this.locations[this.currentIndex].data)
 			this.changeDataIDEB(this.locations[this.currentIndex].dataIDEB)
 		},
-		async changeState(UF) {
-			const stateName = ufToName(UF)
-			
+		async changeState(stateName) {			
 			if (stateName !== undefined) {
 				if (this.currentIndex === 0) { //Primeira mudança
 					this.currentState = await getState(this.states.find(el => el.nome == stateName))
@@ -226,7 +224,20 @@ export default {
 					this.changeDataIDEB(dataIDEB)
 					this.locations.push({data: this.currentState, dataIDEB})
 					this.currentIndex++
-				} else if (this.currentIndex == 1) { //Já escolheu outro estado
+				} else if (this.currentIndex === 1) { //Já escolheu outro estado
+					this.locations.pop()
+					this.currentState = await getState(this.states.find(el => el.nome == stateName))
+					const resIDEB = await api.get(`regiao/${stateName}`)
+					const dataIDEB = resIDEB.data[0]
+
+					this.changeMapOptions(this.currentState)
+					this.changeDataIDEB(dataIDEB)
+					this.locations.push({data: this.currentState, dataIDEB})
+				} else if (this.currentIndex === 2) { //Está numa cidade
+					this.locations.pop()
+					this.locations.pop()
+					this.currentIndex--
+
 					this.currentState = await getState(this.states.find(el => el.nome == stateName))
 					const resIDEB = await api.get(`regiao/${stateName}`)
 					const dataIDEB = resIDEB.data[0]
@@ -237,8 +248,85 @@ export default {
 				}
 			}
 		},
-		changeCity(cityName) {
-			console.log(cityName)
+		async changeCity(stateName, cityName) {
+			if (stateName !== undefined) {
+				if (this.currentIndex === 0) { //Primeira mudança
+					this.currentState = await getState(this.states.find(el => el.nome == stateName))
+					const resIDEBState = await api.get(`regiao/${stateName}`)
+					const dataIDEBState = resIDEBState.data[0]
+
+					this.locations.push({data: this.currentState, dataIDEB: dataIDEBState})
+					this.currentIndex++
+					
+					let state = this.states.find(el => el.nome == this.currentState.name)
+					let data = await getCity(cityName, state, this.currentState.zoom)
+					const resIDEBCity = await api.get(`municipio/${data.codIBGE}`)
+					const dataIDEBCity = resIDEBCity.data
+
+					this.changeMapOptions(data)
+					this.changeDataIDEB(dataIDEBCity)
+					this.locations.push({data, dataIDEB: dataIDEBCity})
+					this.currentIndex++
+				} else if (this.currentIndex === 1) { //Está em um estado
+					if (stateName !== this.currentState.name) {
+						this.locations.pop()
+						this.currentState = await getState(this.states.find(el => el.nome == stateName))
+						const resIDEBState = await api.get(`regiao/${stateName}`)
+						const dataIDEBState = resIDEBState.data[0]
+
+						this.locations.push({data: this.currentState, dataIDEB: dataIDEBState})
+
+						let state = this.states.find(el => el.nome == stateName)
+						let data = await getCity(cityName, state, this.currentState.zoom)
+						const resIDEBCity = await api.get(`municipio/${data.codIBGE}`)
+						const dataIDEBCity = resIDEBCity.data
+
+						this.changeMapOptions(data)
+						this.changeDataIDEB(dataIDEBCity)
+						this.locations.push({data, dataIDEB: dataIDEBCity})
+						this.currentIndex++
+					} else {
+						let state = this.states.find(el => el.nome == stateName)
+						let data = await getCity(cityName, state, this.currentState.zoom)
+						const resIDEB = await api.get(`municipio/${data.codIBGE}`)
+						const dataIDEB = resIDEB.data
+
+						this.changeMapOptions(data)
+						this.changeDataIDEB(dataIDEB)
+						this.locations.push({data, dataIDEB})
+						this.currentIndex++
+					}
+				} else if (this.currentIndex === 2) { //Está em outra cidade
+					if (stateName !== this.currentState.name) {
+						this.locations.pop()
+						this.locations.pop()
+						this.currentState = await getState(this.states.find(el => el.nome == stateName))
+						const resIDEBState = await api.get(`regiao/${stateName}`)
+						const dataIDEBState = resIDEBState.data[0]
+
+						this.locations.push({data: this.currentState, dataIDEB: dataIDEBState})
+
+						let state = this.states.find(el => el.nome == stateName)
+						let data = await getCity(cityName, state, this.currentState.zoom)
+						const resIDEBCity = await api.get(`municipio/${data.codIBGE}`)
+						const dataIDEBCity = resIDEBCity.data
+
+						this.changeMapOptions(data)
+						this.changeDataIDEB(dataIDEBCity)
+						this.locations.push({data, dataIDEB: dataIDEBCity})
+					} else {
+						this.locations.pop()
+						let state = this.states.find(el => el.nome == stateName)
+						let data = await getCity(cityName, state, this.currentState.zoom)
+						const resIDEB = await api.get(`municipio/${data.codIBGE}`)
+						const dataIDEB = resIDEB.data
+
+						this.changeMapOptions(data)
+						this.changeDataIDEB(dataIDEB)
+						this.locations.push({data, dataIDEB})
+					}
+				}
+			}
 		}
 	}
 }

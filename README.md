@@ -1,7 +1,7 @@
 # ISE - Informando Sobre Educação
 
 ## Sobre o projeto
-Esse projeto tem o intuito de mostrar os dados acerca das [notas educacionais do IDEB](http://portal.inep.gov.br/web/guest/educacao-basica/ideb/resultados). Onde essas notas idicam o rendimento geral da educação.
+Esse projeto tem o intuito de mostrar os dados acerca das [notas educacionais do IDEB](http://portal.inep.gov.br/web/guest/educacao-basica/ideb/resultados) através de um dashboard.
 
 O projeto mostra os dados dos seguintes locais:
 * Brasil.

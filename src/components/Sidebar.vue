@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import {statesUF} from '../state'
+import {statesUF, ufToName} from '../state'
 import {getCitiesName} from '../city'
 
 import search from './Search'
@@ -49,6 +49,12 @@ import search from './Search'
 export default {
 	components: {
 		search
+	},
+	mounted() {
+		statesUF.forEach(uf => {
+			this.optionsStates.push(ufToName(uf))
+			this.states[ufToName(uf)] = uf
+		})
 	},
 	data() {
 		return {
@@ -58,8 +64,9 @@ export default {
 				'Escola',
 				'Melhor escola do município'
 			],
-			optionsStates: statesUF,
+			optionsStates: [],
 			optionsCities: [],
+			states: {},
 			searchSelected: false,
 			showState: false,
 			showCity: false,
@@ -84,7 +91,7 @@ export default {
 			}
 		},
 		async selectState(state) {
-			this.optionsCities = await getCitiesName(state)
+			this.optionsCities = await getCitiesName(this.states[state])
 			this.stateSelected = state
 		},
 		selectCity(city) {
@@ -94,7 +101,7 @@ export default {
 			if (this.searchSelected == 'Estado') {
 				this.$emit("change-state", this.stateSelected)
 			} else if (this.searchSelected == 'Município') {
-				this.$emit("change-city", this.citySelected)
+				this.$emit("change-city", this.stateSelected, this.citySelected)
 			}
 			// } else if (search == 'Escola') {
 			// 	this.showState = this.showCity = this.showSchool = true

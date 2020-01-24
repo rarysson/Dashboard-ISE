@@ -95,35 +95,9 @@ export async function getState(state) {
 	}
 }
 
-export const statesUF = [
-	'AC',
-	'AL',
-	'AM',
-	'AP',
-	'BA',
-	'CE',
-	'DF',
-	'ES',
-	'GO',
-	'MA',
-	'MT',
-	'MS',
-	'MG',
-	'PA',
-	'PB',
-	'PR',
-	'PE',
-	'PI',
-	'RJ',
-	'RN',
-	'RO',
-	'RS',
-	'RR',
-	'SC',
-	'SE',
-	'SP',
-	'TO'
-]
+export const statesUF = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE',
+'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 
+'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
 
 export function ufToName(UF) {
 	let states = {

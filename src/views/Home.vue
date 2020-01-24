@@ -18,11 +18,11 @@ export default {
     "ise-map": map
   },
   methods: {
-    changeState(uf) {
-      this.$refs.map.changeState(uf)
+    changeState(state) {
+      this.$refs.map.changeState(state)
     },
-    changeCity(city) {
-      this.$refs.map.changeCity(city)
+    changeCity(state, city) {
+      this.$refs.map.changeCity(state, city)
     }
   }
 }
