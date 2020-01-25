@@ -32,5 +32,6 @@ export default {
 .alert {
 	position: fixed;
 	right: 0;
+	z-index: 10;
 }
 </style>

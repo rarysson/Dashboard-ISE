@@ -8,6 +8,7 @@
     @change-state="changeState"
     @change-city="changeCity"
     @change-school="changeSchool"
+    @show-best-school="showBestSchool"
     @error-server="showError"/>
 
     <ise-map 
@@ -42,6 +43,9 @@ export default {
     },
     changeSchool(stateName, cityName, school) {
       this.$refs.map.changeSchool(stateName, cityName, school)
+    },
+    showBestSchool(state, cityName) {
+      this.$refs.map.showBestSchool(state, cityName)
     },
     showError(error) {
       this.errorMsg = error

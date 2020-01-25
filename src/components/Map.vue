@@ -28,7 +28,7 @@
 				<column-charts 
 				id-chart="1" 
 				:chart-data="dataF1"
-				:location-name="currentLocationName"/>
+				:location-name="locationF1Name"/>
 			</v-tab-item>
 
 			<v-tab>Ensino Fundamental 2</v-tab>
@@ -36,7 +36,7 @@
 				<column-charts 
 				id-chart="2" 
 				:chart-data="dataF2"
-				:location-name="currentLocationName"/>
+				:location-name="locationF2Name"/>
 			</v-tab-item>
 
 			<v-tab>Ensino Médio</v-tab>
@@ -44,7 +44,7 @@
 				<column-charts 
 				id-chart="3" 
 				:chart-data="dataEM"
-				:location-name="currentLocationName"/>
+				:location-name="locationEMName"/>
 			</v-tab-item>
 		</v-tabs>
 	</div>
@@ -54,7 +54,7 @@
 import {api} from '../api'
 import getCountry from '../country'
 import {getState} from '../state'
-import getCity from '../city'
+import getCity, { getIBGECodCity } from '../city'
 import getSchoolIDEB from '../school'
 
 import columnCharts from './ColumnCharts'
@@ -87,6 +87,9 @@ export default {
 			dataF1: [], //Ensino Fundamental 1
 			dataF2: [], //Ensino Fundamental 2
 			dataEM: [], //Ensino Médio
+			locationF1Name: "",
+			locationF2Name: "",
+			locationEMName: "",
 			states: null,
 			locations: [],
 			currentIndex: 0,
@@ -113,6 +116,9 @@ export default {
 	watch: {
 		geoData() {
 			this.drawVisualization()
+		},
+		currentLocationName(value) {
+			this.locationF1Name = this.locationF2Name = this.locationEMName = value
 		}
 	},
 	methods: {
@@ -316,6 +322,29 @@ export default {
 			this.changeDataIDEB(dataIDEB)
 			this.locations.push({data: null, dataIDEB})
 			this.currentIndex++
+		},
+		async showBestSchool(state, cityName) {
+			await this.changeCity(state.name, cityName)
+			this.currentLocationName = `Melhores escolas de ${this.currentLocationName}`
+
+			let escolas
+
+			try {
+				const cityCod = await getIBGECodCity(state.uf, cityName)
+				const res = await api.get(`escola/melhor/ideb/${cityCod}`)
+				escolas = res.data
+			} catch (e) {
+				this.$emit("server-error", e)
+			}
+
+			this.filterDataF1(escolas["Ensino Fundamental 1"][0])
+			this.locationF1Name = escolas["Ensino Fundamental 1"][0].NomeEscola
+
+			this.filterDataF2(escolas["Ensino Fundamental 2"][0])
+			this.locationF2Name = escolas["Ensino Fundamental 2"][0].NomeEscola
+
+			this.filterDataEM(escolas["Ensino Medio"][0])
+			this.locationEMName = escolas["Ensino Medio"][0].NomeEscola
 		}
 	}
 }

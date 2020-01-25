@@ -88,7 +88,7 @@ export default {
 			} else if (search == 'Escola') {
 				this.showState = this.showCity = this.showSchool = true
 			} else {
-				this.showState = this.showCity = this.showSchool = false
+				this.showState = this.showCity = true
 			}
 		},
 		async selectState(state) { 
@@ -127,7 +127,9 @@ export default {
 			} else if (this.selectedSearch == 'Escola' && this.selectedSchool) {
 				this.$emit("change-school", this.selectedState, this.selectedCity, {name: this.selectedSchool, cod: this.schools[this.selectedSchool]})
 			} else {
-				this.showState = this.showCity = this.showSchool = false
+				if (this.selectedCity) {
+					this.$emit("show-best-school", {name: this.selectedState, uf: this.states[this.selectedState]}, this.selectedCity)
+				}
 			}
 		}
 	}
