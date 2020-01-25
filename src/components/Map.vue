@@ -214,7 +214,6 @@ export default {
 
 			this.locations.pop()
 			this.currentIndex--
-			console.log(this.currentIndex, JSON.stringify(this.locations))
 			this.changeMapOptions(this.locations[this.currentIndex].data)
 			this.changeDataIDEB(this.locations[this.currentIndex].dataIDEB)
 		},
@@ -332,7 +331,6 @@ export default {
 			this.currentLocationName = school.name
 			this.changeDataIDEB(dataIDEB)
 			this.locations.push({data: null, dataIDEB})
-			console.log(this.locations)
 		},
 		async showBestSchool(state, cityName) {
 			await this.changeCity(state.name, cityName)
