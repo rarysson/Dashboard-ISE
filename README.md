@@ -7,6 +7,8 @@ O projeto mostra os dados dos seguintes locais:
 * Brasil.
 * Todos estados.
 * Todas as cidades.
+* Todas as escolas.
+* As melhores escolas de uma cidade específica.
 
 ## Ferramentas usadas
 * [Vue.js](vuejs.org/)

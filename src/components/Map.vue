@@ -208,6 +208,7 @@ export default {
 
 			this.locations.pop()
 			this.currentIndex--
+			console.log(this.currentIndex, JSON.stringify(this.locations))
 			this.changeMapOptions(this.locations[this.currentIndex].data)
 			this.changeDataIDEB(this.locations[this.currentIndex].dataIDEB)
 		},
@@ -318,10 +319,14 @@ export default {
 				this.$emit("error-server", e)
 			}
 
+			if (this.currentIndex !== 3) { //Não está numa escola
+				this.currentIndex++
+			}
+
 			this.currentLocationName = school.name
 			this.changeDataIDEB(dataIDEB)
 			this.locations.push({data: null, dataIDEB})
-			this.currentIndex++
+			console.log(this.locations)
 		},
 		async showBestSchool(state, cityName) {
 			await this.changeCity(state.name, cityName)

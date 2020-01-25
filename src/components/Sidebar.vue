@@ -94,6 +94,7 @@ export default {
 		async selectState(state) { 
 			try {
 				this.citiesOptions = await getCitiesName(this.states[state])
+				this.schoolsOptions = []
 				this.selectedState = state
 			} catch (e) {
 				this.$emit("error-server", e)
