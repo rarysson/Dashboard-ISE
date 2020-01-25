@@ -103,6 +103,8 @@ export default {
 			this.selectedCity = city
 
 			if (this.selectedSearch == 'Escola') {
+				this.schoolsOptions = []
+				
 				try {
 					const cityCod = await getIBGECodCity(this.states[this.selectedState], this.selectedCity)
 					const resSchools = await api.get(`escola/municipio/${cityCod}`)
