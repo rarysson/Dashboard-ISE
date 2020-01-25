@@ -1,5 +1,8 @@
 <template>
-  <div :id="'chart' + idChart"></div>
+  <div 
+  :id="'chart' + idChart"
+  style="width: 75%; margin: 0 auto;">
+  </div>
 </template>
 
 <script>
@@ -25,7 +28,8 @@ export default {
 
       let chart = new window.google.visualization.ColumnChart(document.getElementById('chart' + this.idChart));
       let options = {
-        title: `Histórico de notas do IDEB - ${this.locationName}`
+        title: `Histórico de notas do IDEB - ${this.locationName}`,
+        backgroundColor: '#fafafa'
       }
 
       chart.draw(data, options);

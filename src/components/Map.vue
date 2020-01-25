@@ -22,29 +22,35 @@
 				<v-col></v-col>
 			</v-row>
 		</v-container>
-		<v-tabs centered>
+		<v-tabs centered background-color="transparent">
 			<v-tab>Ensino Fundamental 1</v-tab>
 			<v-tab-item>
-				<column-charts 
-				id-chart="1" 
-				:chart-data="dataF1"
-				:location-name="locationF1Name"/>
+				<v-card flat color="grey lighten-5">				
+					<column-charts 
+					id-chart="1" 
+					:chart-data="dataF1"
+					:location-name="locationF1Name"/>
+				</v-card>
 			</v-tab-item>
 
 			<v-tab>Ensino Fundamental 2</v-tab>
 			<v-tab-item>
-				<column-charts 
-				id-chart="2" 
-				:chart-data="dataF2"
-				:location-name="locationF2Name"/>
+				<v-card flat color="grey lighten-5">				
+					<column-charts 
+					id-chart="2" 
+					:chart-data="dataF2"
+					:location-name="locationF2Name"/>
+				</v-card>
 			</v-tab-item>
 
 			<v-tab>Ensino Médio</v-tab>
 			<v-tab-item>
-				<column-charts 
-				id-chart="3" 
-				:chart-data="dataEM"
-				:location-name="locationEMName"/>
+				<v-card flat color="grey lighten-5">
+					<column-charts 
+					id-chart="3" 
+					:chart-data="dataEM"
+					:location-name="locationEMName"/>
+				</v-card>
 			</v-tab-item>
 		</v-tabs>
 	</div>
