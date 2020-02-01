@@ -14,10 +14,10 @@ O projeto mostra os dados dos seguintes locais:
 * [Vue.js](vuejs.org/)
 * [Vuetify](https://vuetifyjs.com/)
 * [Google Charts](https://developers.google.com/chart)
-* [Google Maps API](https://cloud.google.com/maps-platform/maps/)
-* [geochart-geojson](https://github.com/rarylson/geochart-geojson)
-* [municipal-brazilian-geodata](https://github.com/luizpedone/municipal-brazilian-geodata)
-* [Municipios-Brasileiros](https://github.com/kelvins/Municipios-Brasileiros)
+* [Google Maps API](https://cloud.google.com/maps-platform/maps/) - requisito para usar geochart-geojson.
+* [geochart-geojson](https://github.com/rarylson/geochart-geojson) - usado para criar os mapas dos estados e cidades.
+* [municipal-brazilian-geodata](https://github.com/luizpedone/municipal-brazilian-geodata) - usado para saber os limites dos estados e cidades.
+* [Municipios-Brasileiros](https://github.com/kelvins/Municipios-Brasileiros) - usado para saber o código IBGE, latitute e longitude das cidades.
 
 ## Rodando a aplicação
 Para usar basta acessar o link do [Heroku](https://dashboard-ise.herokuapp.com/).
