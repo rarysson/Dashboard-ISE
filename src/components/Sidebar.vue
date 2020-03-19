@@ -62,6 +62,8 @@ export default {
 			this.statesOptions.push(ufToName(uf))
 			this.states[ufToName(uf)] = uf
 		})
+
+		this.showDrawer = window.innerWidth > 1250
 	},
 	data() {
 		return {
@@ -78,7 +80,7 @@ export default {
 			selectedState: null,
 			selectedCity: null,
 			selectedSchool: null,
-			showDrawer: true
+			showDrawer: false
 		}
 	},
 	methods: {
