@@ -2,17 +2,18 @@
 	<div>
 		<p>{{ currentLocationName }}</p>
 		<hr>
+
 		<v-container>
 			<v-row>
 				<v-col align-self="center" class="col-btn">
-					<v-btn 
-					@click="goBack" 
+					<v-btn
+					@click="goBack"
 					title="Voltar para localização anterior">
 						Voltar
 					</v-btn>
 				</v-col>
 
-				<v-col cols="8">
+				<v-col cols="12" md="10">
 					<div
 					id="map"
 					@click="selectArea">
@@ -22,12 +23,13 @@
 				<v-col></v-col>
 			</v-row>
 		</v-container>
+
 		<v-tabs centered background-color="transparent">
 			<v-tab>Ensino Fundamental 1</v-tab>
 			<v-tab-item>
-				<v-card flat color="grey lighten-5">				
-					<column-charts 
-					id-chart="1" 
+				<v-card flat color="grey lighten-5">
+					<column-charts
+					id-chart="1"
 					:chart-data="dataF1"
 					:location-name="locationF1Name"/>
 				</v-card>
@@ -35,9 +37,9 @@
 
 			<v-tab>Ensino Fundamental 2</v-tab>
 			<v-tab-item>
-				<v-card flat color="grey lighten-5">				
-					<column-charts 
-					id-chart="2" 
+				<v-card flat color="grey lighten-5">
+					<column-charts
+					id-chart="2"
 					:chart-data="dataF2"
 					:location-name="locationF2Name"/>
 				</v-card>
@@ -46,8 +48,8 @@
 			<v-tab>Ensino Médio</v-tab>
 			<v-tab-item>
 				<v-card flat color="grey lighten-5">
-					<column-charts 
-					id-chart="3" 
+					<column-charts
+					id-chart="3"
 					:chart-data="dataEM"
 					:location-name="locationEMName"/>
 				</v-card>
@@ -104,7 +106,7 @@ export default {
 			geoOptions: {
 				mapsOptions: {
 					center: {
-						lat: 0, 
+						lat: 0,
 						lng: 0
 					},
 					zoom: 4
@@ -166,7 +168,7 @@ export default {
 			let data = new window.google.visualization.DataTable()
 			data.addColumn("string", "Local")
 			data.addRows(this.geoData)
-			
+
 			this.geochart = new window.geochart_geojson.GeoChart(document.getElementById("map"))
 
 			this.geochart.draw(data, this.geoOptions)
@@ -178,7 +180,7 @@ export default {
 				if (cod[cod.length - 1] == 1) {
 					let year = cod.slice(4, 8)
 					let grade = locations[cod]
-					
+
 					this.dataF1.push([year, grade])
 				}
 			}
@@ -190,7 +192,7 @@ export default {
 				if (cod[cod.length - 1] == 2) {
 					let year = cod.slice(4, 8)
 					let grade = locations[cod]
-					
+
 					this.dataF2.push([year, grade])
 				}
 			}
@@ -202,7 +204,7 @@ export default {
 				if (cod[cod.length - 1] == 'M') {
 					let year = cod.slice(4, 8)
 					let grade = locations[cod]
-					
+
 					this.dataEM.push([year, grade])
 				}
 			}
@@ -231,7 +233,7 @@ export default {
 				dataIDEB = resIDEB.data[0]
 			} catch (e) {
 				this.$emit("error-server", e)
-			}			
+			}
 
 			return {
 				stateData,
@@ -255,8 +257,8 @@ export default {
 				dataIDEB
 			}
 		},
-		async changeState(stateName) {			
-			if (this.currentIndex === 0) { //Primeira mudança				
+		async changeState(stateName) {
+			if (this.currentIndex === 0) { //Primeira mudança
 				this.currentIndex++ //Vai acrescentar um lugar
 			} else if (this.currentIndex === 1) { //Já escolheu outro estado
 				this.locations.pop() //Remove o estado escolhido

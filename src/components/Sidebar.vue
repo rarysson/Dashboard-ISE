@@ -1,45 +1,49 @@
 <template>
-	<v-navigation-drawer color="indigo darken-3" app>
-		<v-list height="100vh">
-			<v-list-item-content class="app-name">
-				<v-list-item-title class="app-title">ISE</v-list-item-title>
-				<v-list-item-subtitle>Informando Sobre Educação</v-list-item-subtitle>
-			</v-list-item-content>
-			<hr>
-			<search 
-			text-label="Pesquisar"
-			class="search"
-			:options="searchOptions"
-			@change-value="selectSearch"/>
+	<div>
+		<v-app-bar-nav-icon @click="showDrawer = !showDrawer" id="icon-drawer"/>
 
-			<search 
-			text-label="Estado"
-			class="search"
-			v-if="showState"
-			:options="statesOptions"
-			@change-value="selectState"/>
+		<v-navigation-drawer color="indigo darken-3" v-model="showDrawer" app>
+			<v-list height="100vh">
+				<v-list-item-content class="app-name">
+					<v-list-item-title class="app-title">ISE</v-list-item-title>
+					<v-list-item-subtitle>Informando Sobre Educação</v-list-item-subtitle>
+				</v-list-item-content>
+				<hr>
+				<search
+				text-label="Pesquisar"
+				class="search"
+				:options="searchOptions"
+				@change-value="selectSearch"/>
 
-			<search
-			text-label="Município"
-			class="search"
-			v-if="showCity"
-			:options="citiesOptions"
-			@change-value="selectCity"/>
+				<search
+				text-label="Estado"
+				class="search"
+				v-if="showState"
+				:options="statesOptions"
+				@change-value="selectState"/>
 
-			<search
-			text-label="Escola"
-			class="search"
-			v-if="showSchool"
-			:options="schoolsOptions"
-			@change-value="selectSchool"/>
+				<search
+				text-label="Município"
+				class="search"
+				v-if="showCity"
+				:options="citiesOptions"
+				@change-value="selectCity"/>
 
-			<div style="text-align: center;" v-if="selectedSearch">
-				<v-btn @click="emitEvent">
-					Pesquisar
-				</v-btn>
-			</div>
-		</v-list>
-	</v-navigation-drawer>
+				<search
+				text-label="Escola"
+				class="search"
+				v-if="showSchool"
+				:options="schoolsOptions"
+				@change-value="selectSchool"/>
+
+				<div style="text-align: center;" v-if="selectedSearch">
+					<v-btn @click="emitEvent">
+						Pesquisar
+					</v-btn>
+				</div>
+			</v-list>
+		</v-navigation-drawer>
+	</div>
 </template>
 
 <script>
@@ -73,7 +77,8 @@ export default {
 			selectedSearch: null,
 			selectedState: null,
 			selectedCity: null,
-			selectedSchool: null
+			selectedSchool: null,
+			showDrawer: true
 		}
 	},
 	methods: {
@@ -91,25 +96,25 @@ export default {
 				this.showState = this.showCity = true
 			}
 		},
-		async selectState(state) { 
+		async selectState(state) {
 			try {
 				this.citiesOptions = await getCitiesName(this.states[state])
 				this.schoolsOptions = []
 				this.selectedState = state
 			} catch (e) {
 				this.$emit("error-server", e)
-			}			
+			}
 		},
 		async selectCity(city) {
 			this.selectedCity = city
 
 			if (this.selectedSearch == 'Escola') {
 				this.schoolsOptions = []
-				
+
 				try {
 					const cityCod = await getIBGECodCity(this.states[this.selectedState], this.selectedCity)
 					const resSchools = await api.get(`escola/municipio/${cityCod}`)
-					
+
 					resSchools.data.forEach(school => {
 						this.schoolsOptions.push(school.NomeEscola)
 						this.schools[school.NomeEscola] = school.CodigoEscola
@@ -158,5 +163,15 @@ hr {
 .search {
 	width: 90%;
 	margin: 10px auto;
+}
+
+#icon-drawer {
+	visibility: hidden;
+}
+
+@media (max-width: 1265px) {
+	#icon-drawer {
+		visibility: visible;
+	}
 }
 </style>

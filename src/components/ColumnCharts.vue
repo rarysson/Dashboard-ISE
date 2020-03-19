@@ -1,7 +1,7 @@
 <template>
-  <div 
+  <div
   :id="'chart' + idChart"
-  style="width: 75%; margin: 0 auto;">
+  style="width: 90%; margin: 0 auto;">
   </div>
 </template>
 
