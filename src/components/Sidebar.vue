@@ -47,9 +47,9 @@
 </template>
 
 <script>
-import {statesUF, ufToName} from '../state'
-import {getCitiesName, getIBGECodCity} from '../city'
-import {api} from '../api'
+import {statesUF, ufToName} from '../util/state'
+import {getCitiesName, getIBGECodCity} from '../util/city'
+import {api} from '../util/api'
 
 import search from './Search'
 

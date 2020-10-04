@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<v-select 
+		<v-select
 		outlined
 		dense
 		v-model="selected"
@@ -9,7 +9,7 @@
 		:append-icon="selectIcon()"
 		:label="textLabel"
 		:items="options"
-		@change="emitChangeEvent"/> 
+		@change="emitChangeEvent"/>
 	</div>
 </template>
 

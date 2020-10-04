@@ -1,36 +1,36 @@
-import axios from 'axios'
+import axios from "axios";
 
 const centralPoints = {
-    AC: [-8.77, -70.55],
+	AC: [-8.77, -70.55],
 	AL: [-9.62, -36.82],
-	AM: [-3.47, -65.10],
+	AM: [-3.47, -65.1],
 	AP: [1.41, -51.77],
 	BA: [-13.29, -41.71],
-	CE: [-5.20, -39.53],
+	CE: [-5.2, -39.53],
 	DF: [-15.83, -47.86],
 	ES: [-19.19, -40.34],
 	GO: [-15.98, -49.86],
 	MA: [-5.42, -45.44],
 	MT: [-12.64, -55.42],
 	MS: [-20.51, -54.54],
-	MG: [-18.10, -44.38],
+	MG: [-18.1, -44.38],
 	PA: [-3.79, -52.48],
 	PB: [-7.28, -36.72],
 	PR: [-24.89, -51.55],
 	PE: [-8.38, -37.86],
-	PI: [-6.60, -42.28],
+	PI: [-6.6, -42.28],
 	RJ: [-22.25, -42.66],
 	RN: [-5.81, -36.59],
 	RO: [-10.83, -63.34],
-	RS: [-30.17, -53.50],
+	RS: [-30.17, -53.5],
 	RR: [1.99, -61.33],
 	SC: [-27.45, -50.95],
 	SE: [-10.57, -37.45],
 	SP: [-22.19, -48.79],
 	TO: [-9.46, -48.26]
-}
+};
 
-const zoomState = {
+const stateZoom = {
 	AC: 6.8,
 	AL: 8.1,
 	AM: 5.7,
@@ -58,38 +58,34 @@ const zoomState = {
 	SE: 8.2,
 	SP: 6.7,
 	TO: 6.3
-}
+};
 
 export async function getState(state) {
-	let lat, lng
-	let cities = []
+	const cities = [];
+	const res = await axios.get(
+		`https://raw.githubusercontent.com/luizpedone/municipal-brazilian-geodata/master/data/${state.uf}.json`
+	);
 
-	try {
-		const res = await axios.get(`https://raw.githubusercontent.com/luizpedone/municipal-brazilian-geodata/master/data/${state.uf}.json`)
-		
-		res.data.features.forEach(el => {
-			let city = el.properties
+	res.data.features.forEach((el) => {
+		let city = el.properties;
 
-			if (city.UF == state.uf) {
-				cities.push([city.NOME])
-			}
-		});
+		if (city.UF == state.uf) {
+			cities.push([city.NOME]);
+		}
+	});
 
-		lat = centralPoints[state.uf][0]
-		lng = centralPoints[state.uf][1]
-	} catch (e) {
-		throw e
-	}
+	const lat = centralPoints[state.uf][0];
+	const lng = centralPoints[state.uf][1];
 
 	return {
 		property_name: "NOME",
 		name: `${state.nome}`,
 		lat,
 		lng,
-		zoom: zoomState[state.uf],
+		zoom: stateZoom[state.uf],
 		url: `https://raw.githubusercontent.com/luizpedone/municipal-brazilian-geodata/master/data/${state.uf}.json`,
 		data: cities
-	}
+	};
 }
 
 export function ufToName(UF) {
@@ -121,10 +117,37 @@ export function ufToName(UF) {
 		SE: "Sergipe",
 		SP: "São Paulo",
 		TO: "Tocantins"
-	}
+	};
 
-	return states[UF]
+	return states[UF];
 }
 
-export const statesUF = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 
-'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
+export const statesUF = [
+	"AC",
+	"AL",
+	"AP",
+	"AM",
+	"BA",
+	"CE",
+	"DF",
+	"ES",
+	"GO",
+	"MA",
+	"MT",
+	"MS",
+	"MG",
+	"PA",
+	"PB",
+	"PR",
+	"PE",
+	"PI",
+	"RJ",
+	"RN",
+	"RS",
+	"RO",
+	"RR",
+	"SC",
+	"SP",
+	"SE",
+	"TO"
+];

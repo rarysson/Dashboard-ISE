@@ -59,11 +59,11 @@
 </template>
 
 <script>
-import {api} from '../api'
-import getCountry from '../country'
-import {getState} from '../state'
-import getCity, { getIBGECodCity } from '../city'
-import getSchoolIDEB from '../school'
+import {api} from '../util/api'
+import getCountry from '../util/country'
+import {getState} from '../util/state'
+import getCity, { getIBGECodCity } from '../util/city'
+import getSchoolIDEB from '../util/school'
 
 import columnCharts from './ColumnCharts'
 

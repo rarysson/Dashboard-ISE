@@ -1,19 +1,22 @@
 <template>
   <div>
     <error-box
-    ref="box"
-    :message="errorMsg"/>
+      ref="box"
+      :message="errorMsg"
+    />
 
     <sidebar
-    @change-state="changeState"
-    @change-city="changeCity"
-    @change-school="changeSchool"
-    @show-best-school="showBestSchool"
-    @error-server="showError"/>
+      @change-state="changeState"
+      @change-city="changeCity"
+      @change-school="changeSchool"
+      @show-best-school="showBestSchool"
+      @error-server="showError"
+    />
 
-    <ise-map 
-    ref="map"
-    @error-server="showError"/>
+    <ise-map
+      ref="map"
+      @error-server="showError"
+    />
   </div>
 </template>
 

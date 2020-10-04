@@ -1,8 +1,8 @@
 <template>
   <v-app>
-    <v-content fluid>
+    <v-main fluid>
       <router-view/>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 
@@ -11,11 +11,3 @@ export default {
   name: 'App'
 }
 </script>
-
-<style>
-* {
-	padding: 0;
-	margin: 0;
-	box-sizing: border-box;
-}
-</style>
